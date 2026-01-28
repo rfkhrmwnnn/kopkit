@@ -14,15 +14,31 @@ const orders = ref([])
 const isEditingAddress = ref(false)
 const newAddress = ref('')
 
-onMounted(() => {
+const intervalId = ref(null)
+
+const fetchOrders = () => {
   const savedOrders = JSON.parse(localStorage.getItem('orders') || '[]')
   if (authStore.user) {
+    // Only update if changes found or deeply checking, but simple replacement is fine for now
     orders.value = savedOrders.filter(o => o.username === authStore.user.username).reverse()
   }
+}
+
+onMounted(() => {
+  fetchOrders()
   
   if (authStore.user) {
     newAddress.value = authStore.user.address
   }
+
+  // Real-time polling
+  intervalId.value = setInterval(fetchOrders, 2000)
+})
+
+import { onUnmounted } from 'vue'
+
+onUnmounted(() => {
+  if (intervalId.value) clearInterval(intervalId.value)
 })
 
 const formatPrice = (price) => {
@@ -43,6 +59,38 @@ const updateAddress = () => {
 const handleLogout = () => {
   authStore.logout()
   router.push('/login')
+}
+
+// --- History Modal ---
+const isHistoryModalOpen = ref(false)
+const openHistoryModal = () => {
+  isHistoryModalOpen.value = true
+}
+
+// --- Account Settings ---
+const isSettingsModalOpen = ref(false)
+const editProfileForm = ref({
+  password: '',
+  address: ''
+})
+
+const openSettingsModal = () => {
+  editProfileForm.value = {
+    password: authStore.user?.password || '', // Password might not be stored in user object in logic before, but let's assume valid fields
+    address: authStore.user?.address || ''
+  }
+  isSettingsModalOpen.value = true
+}
+
+const saveSettings = () => {
+  // We only update what is allowed. Username should be immutable usually.
+  authStore.updateProfile({
+    address: editProfileForm.value.address,
+    // Note: In real app, password change requires old password verification
+    ...(editProfileForm.value.password ? { password: editProfileForm.value.password } : {}) 
+  })
+  isSettingsModalOpen.value = false
+  alert('Profile updated successfully')
 }
 </script>
 
@@ -84,7 +132,7 @@ const handleLogout = () => {
       <div class="bg-white rounded-lg shadow-sm p-4">
          <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-50">
             <h3 class="text-sm font-bold text-gray-800">My Orders</h3>
-            <button class="text-xs text-gray-500 flex items-center">
+            <button @click="openHistoryModal" class="text-xs text-brand-600 font-bold flex items-center hover:underline">
                View Purchase History <ChevronRight class="w-3 h-3 ml-1" />
             </button>
          </div>
@@ -127,7 +175,7 @@ const handleLogout = () => {
                </div>
                <ChevronRight class="w-4 h-4 text-gray-400" />
             </button>
-            <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+            <button @click="openSettingsModal" class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
                <div class="flex items-center text-gray-700">
                   <Settings class="w-5 h-5 mr-3 text-gray-500" />
                   <span class="text-sm">Account Settings</span>
@@ -182,6 +230,70 @@ const handleLogout = () => {
 
     <div class="md:hidden">
       <NavBar />
+    </div>
+
+    <!-- Account Settings Modal -->
+    <div v-if="isSettingsModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 animate-scale-in">
+         <h3 class="text-xl font-bold text-slate-800 mb-4">Account Settings</h3>
+         <div class="space-y-4">
+            <div>
+               <label class="block text-sm font-medium text-slate-700 mb-1">Username</label>
+               <input :value="authStore.user?.username" type="text" disabled class="w-full border px-3 py-2 rounded-lg border-gray-200 bg-gray-50 text-gray-500">
+            </div>
+            <div>
+               <label class="block text-sm font-medium text-slate-700 mb-1">Address</label>
+               <textarea v-model="editProfileForm.address" rows="3" class="w-full border px-3 py-2 rounded-lg border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none transition-all"></textarea>
+            </div>
+            <div>
+               <label class="block text-sm font-medium text-slate-700 mb-1">New Password (Optional)</label>
+               <input v-model="editProfileForm.password" type="password" placeholder="Leave blank to keep current" class="w-full border px-3 py-2 rounded-lg border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+            </div>
+         </div>
+         <div class="flex justify-end space-x-3 mt-6">
+            <button @click="isSettingsModalOpen = false" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
+            <button @click="saveSettings" class="bg-brand-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-brand-700 shadow-md">Save Changes</button>
+         </div>
+      </div>
+    </div>
+
+    <!-- History Modal -->
+    <div v-if="isHistoryModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 animate-scale-in max-h-[80vh] flex flex-col">
+         <div class="flex justify-between items-center mb-4">
+           <h3 class="text-xl font-bold text-slate-800">Purchase History</h3>
+           <button @click="isHistoryModalOpen = false" class="text-slate-400 hover:text-slate-600"><div class="text-2xl">&times;</div></button>
+         </div>
+         <div class="flex-1 overflow-y-auto custom-scrollbar space-y-4 pr-2">
+            <div v-if="orders.length === 0" class="text-center py-10 text-slate-400">No purchase history found.</div>
+            <div v-for="order in orders" :key="order.id" class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col gap-3">
+               <div class="flex justify-between items-center border-b border-slate-50 pb-2">
+                   <div>
+                       <span class="font-bold text-slate-800">Order {{ order.id }}</span>
+                       <div class="text-xs text-slate-400">{{ formatDate(order.date) }}</div>
+                   </div>
+                   <span class="px-2 py-1 rounded text-xs font-bold uppercase bg-brand-50 text-brand-600">{{ order.status }}</span>
+               </div>
+               
+               <div v-if="order.resi" class="bg-slate-50 p-2 rounded text-xs flex justify-between">
+                  <span class="text-slate-500">Tracking (Resi):</span>
+                  <span class="font-mono font-bold">{{ order.resi }}</span>
+               </div>
+
+               <div class="space-y-2">
+                  <div v-for="(item, idx) in order.items" :key="idx" class="flex justify-between items-center text-sm">
+                      <span class="text-slate-700">{{ item.name }} <span class="text-xs text-slate-400">x{{ item.quantity }}</span></span>
+                      <span class="font-medium text-slate-900">{{ formatPrice(item.price * item.quantity) }}</span>
+                  </div>
+               </div>
+               
+               <div class="pt-2 border-t border-slate-100 flex justify-between items-center font-bold text-slate-800">
+                  <span>Total</span>
+                  <span>{{ formatPrice(order.total) }}</span>
+               </div>
+            </div>
+         </div>
+      </div>
     </div>
   </div>
 </template>

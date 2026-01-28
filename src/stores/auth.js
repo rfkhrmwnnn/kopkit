@@ -69,5 +69,21 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { user, login, logout, register, updateAddress }
+  function updateProfile(data) {
+    if (user.value) {
+      // Update local state
+      user.value = { ...user.value, ...data }
+      localStorage.setItem('user', JSON.stringify(user.value))
+
+      // Update registeredUsers
+      const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+      const index = registeredUsers.findIndex(u => u.username === user.value.username)
+      if (index !== -1) {
+        registeredUsers[index] = { ...registeredUsers[index], ...data }
+        localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers))
+      }
+    }
+  }
+
+  return { user, login, logout, register, updateAddress, updateProfile }
 })
