@@ -58,6 +58,34 @@ const getStatusColor = (status) => {
   return 'bg-green-100 text-green-700 border-green-200'
 }
 
+// --- Order Management (Edit) ---
+const isOrderModalOpen = ref(false)
+const editingOrder = ref({ id: '', status: '', resi: '' })
+
+const openOrderModal = (order) => {
+  editingOrder.value = { ...order }
+  isOrderModalOpen.value = true
+}
+
+const saveOrderUpdate = () => {
+  const orderIndex = orders.value.findIndex(o => o.id === editingOrder.value.id)
+  if (orderIndex !== -1) {
+    // Update local state
+    orders.value[orderIndex].status = editingOrder.value.status
+    orders.value[orderIndex].resi = editingOrder.value.resi
+    
+    // Persist to LocalStorage (Global update)
+    const allOrders = JSON.parse(localStorage.getItem('orders') || '[]')
+    const realIndex = allOrders.findIndex(o => o.id === editingOrder.value.id)
+    if (realIndex !== -1) {
+      allOrders[realIndex].status = editingOrder.value.status
+      allOrders[realIndex].resi = editingOrder.value.resi || ''
+      localStorage.setItem('orders', JSON.stringify(allOrders))
+    }
+  }
+  isOrderModalOpen.value = false
+}
+
 // --- Product Management ---
 const isProductModalOpen = ref(false)
 const newProduct = ref({
@@ -258,20 +286,11 @@ const stats = computed(() => [
                       </td>
                       <td class="px-6 py-4 text-right space-x-2">
                         <button 
-                           v-if="order.status === 'Dikemas'" 
-                           @click="updateOrderStatus(order.id, 'Dikirim')"
-                           class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-200 transition-colors"
+                           @click="openOrderModal(order)"
+                           class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-200 transition-colors flex items-center ml-auto"
                         >
-                           Ship Order
+                           <Edit class="w-3 h-3 mr-1" /> Manage
                         </button>
-                        <button 
-                           v-if="order.status === 'Dikirim'" 
-                           @click="updateOrderStatus(order.id, 'Selesai')" 
-                           class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-xs font-bold hover:bg-green-200 transition-colors"
-                        >
-                           Complete
-                        </button>
-                         <span v-if="order.status === 'Selesai'" class="text-slate-400 text-xs italic">Completed</span>
                       </td>
                     </tr>
                   </tbody>
@@ -311,20 +330,12 @@ const stats = computed(() => [
                       </td>
                       <td class="px-6 py-4 text-right space-x-2">
                         <button 
-                           v-if="order.status === 'Dikemas'" 
-                           @click="updateOrderStatus(order.id, 'Dikirim')"
-                           class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-200 transition-colors"
+                           @click="openOrderModal(order)"
+                           class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-200 transition-colors flex items-center ml-auto"
                         >
-                           Ship Order
+                           <Edit class="w-3 h-3 mr-1" /> Manage
                         </button>
-                        <button 
-                           v-if="order.status === 'Dikirim'" 
-                           @click="updateOrderStatus(order.id, 'Selesai')" 
-                           class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-xs font-bold hover:bg-green-200 transition-colors"
-                        >
-                           Complete
-                        </button>
-                         <span v-if="order.status === 'Selesai'" class="text-slate-400 text-xs italic">Completed</span>
+                         <span v-if="order.status === 'Selesai'" class="text-slate-400 text-xs italic block mt-1">Completed</span>
                       </td>
                     </tr>
                   </tbody>
@@ -522,5 +533,33 @@ const stats = computed(() => [
          </div>
       </div>
     </div>
+
+    <!-- Edit Order Modal -->
+    <div v-if="isOrderModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 animate-scale-in">
+         <h3 class="text-xl font-bold text-slate-800 mb-4">Update Order {{ editingOrder.id }}</h3>
+         <div class="space-y-4">
+            <div>
+               <label class="block text-sm font-medium text-slate-700 mb-1">Status</label>
+               <select v-model="editingOrder.status" class="w-full border px-3 py-2 rounded-lg border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+                  <option value="Dikemas">Dikemas (Packed)</option>
+                  <option value="Dikirim">Dikirim (Shipped)</option>
+                  <option value="Selesai">Selesai (Completed)</option>
+               </select>
+            </div>
+            
+            <div v-if="editingOrder.status === 'Dikirim' || editingOrder.status === 'Selesai'" class="animate-fade-in">
+               <label class="block text-sm font-medium text-slate-700 mb-1">Tracking Number (No. Resi)</label>
+               <input v-model="editingOrder.resi" type="text" placeholder="Enter tracking number" class="w-full border px-3 py-2 rounded-lg border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+               <p class="text-xs text-slate-500 mt-1">Required for shipped orders.</p>
+            </div>
+         </div>
+         <div class="flex justify-end space-x-3 mt-6">
+            <button @click="isOrderModalOpen = false" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
+            <button @click="saveOrderUpdate" class="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 shadow-md transition-all hover:-translate-y-0.5">Update Order</button>
+         </div>
+      </div>
+    </div>
+
   </div>
 </template>

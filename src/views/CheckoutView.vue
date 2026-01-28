@@ -39,7 +39,9 @@ const confirmOrder = () => {
       total: cartStore.totalPrice * 1.1,
       status: 'Dikemas', // Packed
       address: address.value,
-      paymentMethod: paymentMethod.value
+      paymentMethod: paymentMethod.value,
+      username: authStore.user?.username || 'Guest',
+      resi: '' // Tracking number
     }
 
     const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]')

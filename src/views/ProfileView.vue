@@ -16,7 +16,9 @@ const newAddress = ref('')
 
 onMounted(() => {
   const savedOrders = JSON.parse(localStorage.getItem('orders') || '[]')
-  orders.value = savedOrders.reverse() // Newest first
+  if (authStore.user) {
+    orders.value = savedOrders.filter(o => o.username === authStore.user.username).reverse()
+  }
   
   if (authStore.user) {
     newAddress.value = authStore.user.address
@@ -29,7 +31,7 @@ const formatPrice = (price) => {
 
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('id-ID', {
-    day: 'numeric', month: 'short'
+    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
   })
 }
 
@@ -142,20 +144,29 @@ const handleLogout = () => {
          </div>
       </div>
 
-       <!-- Recent Orders List (Simplified) -->
+       <!-- Recent Orders List -->
       <div v-if="orders.length > 0" class="space-y-3">
          <h3 class="text-sm font-bold text-gray-500 px-2 mt-2">Recent Purchases</h3>
          <div v-for="order in orders.slice(0, 3)" :key="order.id" class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex flex-col gap-2">
             <div class="flex justify-between items-start border-b border-gray-50 pb-2">
-               <span class="font-bold text-sm text-gray-800">{{ order.items[0]?.name }} <span v-if="order.items.length > 1" class="font-normal text-gray-500 text-xs">+ {{ order.items.length - 1 }} others</span></span>
-               <span class="text-brand-600 text-xs uppercase font-bold">{{ order.status }}</span>
+               <div>
+                 <span class="font-bold text-sm text-gray-800">{{ order.items[0]?.name }} <span v-if="order.items.length > 1" class="font-normal text-gray-500 text-xs">+ {{ order.items.length - 1 }} others</span></span>
+                 <div class="text-[10px] text-gray-400 font-mono mt-0.5">{{ order.id }}</div>
+               </div>
+               <span class="text-brand-600 text-[10px] uppercase font-bold bg-brand-50 px-2 py-1 rounded">{{ order.status }}</span>
             </div>
+            
+            <div v-if="order.resi" class="bg-slate-50 p-2 rounded border border-slate-100 flex justify-between items-center">
+               <span class="text-xs text-slate-500">Tracking Number (Resi):</span>
+               <span class="text-xs font-mono font-bold text-slate-800 select-all">{{ order.resi }}</span>
+            </div>
+
             <div class="flex justify-between items-center pt-1">
                <span class="text-xs text-gray-500">{{ formatDate(order.date) }}</span>
                <span class="text-sm font-bold text-brand-600">{{ formatPrice(order.total) }}</span>
             </div>
             <div class="mt-2 text-right">
-               <button class="bg-brand-600 text-white text-xs px-4 py-2 rounded shadow-sm hover:bg-brand-700">Buy Again</button>
+               <button class="bg-brand-600 text-white text-xs px-4 py-2 rounded shadow-sm hover:bg-brand-700 font-bold transition-all active:scale-95">Buy Again</button>
             </div>
          </div>
       </div>
