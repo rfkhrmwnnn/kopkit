@@ -3,7 +3,10 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import NavBar from '@/components/NavBar.vue'
 import { useAuthStore } from '@/stores/auth'
-import { Package, Truck, CheckCircle, MapPin, LogOut, Home } from 'lucide-vue-next'
+import { 
+  Package, Truck, CheckCircle, MapPin, LogOut, Home, 
+  Settings, CreditCard, Heart, HelpCircle, ChevronRight, User 
+} from 'lucide-vue-next'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -26,7 +29,7 @@ const formatPrice = (price) => {
 
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('id-ID', {
-    day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    day: 'numeric', month: 'short'
   })
 }
 
@@ -39,113 +42,124 @@ const handleLogout = () => {
   authStore.logout()
   router.push('/login')
 }
-
-const getStatusIcon = (status) => {
-  if (status === 'Dikemas') return Package
-  if (status === 'Dikirim') return Truck
-  return CheckCircle
-}
-
-const getStatusColor = (status) => {
-  if (status === 'Dikemas') return 'text-orange-500 bg-orange-50 border-orange-200'
-  if (status === 'Dikirim') return 'text-blue-500 bg-blue-50 border-blue-200'
-  return 'text-green-500 bg-green-50 border-green-200'
-}
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 pb-20 md:pb-0">
-    <div class="bg-brand-900 pb-32 pt-10 px-4 rounded-b-[3rem] shadow-lg relative overflow-hidden">
-      <!-- Decorative circles -->
-      <div class="absolute top-0 right-0 -mr-10 -mt-10 w-40 h-40 rounded-full bg-white/10 blur-xl"></div>
-      <div class="absolute bottom-0 left-0 -ml-10 -mb-10 w-40 h-40 rounded-full bg-white/5 blur-xl"></div>
-
-      <div class="max-w-3xl mx-auto flex justify-between items-start relative z-10">
-        <div class="flex items-center space-x-4">
-          <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-white text-2xl font-bold border-2 border-white/30 backdrop-blur-sm">
-            {{ authStore.user?.username.charAt(0).toUpperCase() }}
-          </div>
-          <div>
-            <h1 class="text-white text-2xl font-bold">Halo, {{ authStore.user?.username }}</h1>
-            <p class="text-brand-200 text-sm">{{ authStore.user?.role === 'admin' ? 'Administrator' : 'Premium Member' }}</p>
-          </div>
-        </div>
-        <div class="flex items-center space-x-2">
-            <router-link to="/home" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg text-white transition-colors" title="Back to Dashboard">
-              <Home class="w-5 h-5" />
-            </router-link>
-            <button @click="handleLogout" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg text-white transition-colors" title="Logout">
-              <LogOut class="w-5 h-5" />
-            </button>
-        </div>
+  <div class="min-h-screen bg-gray-100 pb-20 md:pb-0">
+    <!-- Header/Profile Info Section -->
+    <div class="bg-gradient-to-r from-brand-600 to-brand-500 pb-16 pt-8 px-4 relative">
+      <div class="max-w-3xl mx-auto">
+         <div class="flex justify-between items-start mb-6">
+            <h1 class="text-xl font-bold text-white">My Profile</h1>
+            <div class="flex space-x-3">
+              <router-link to="/home" class="p-2 text-white/90 hover:text-white">
+                 <Home class="w-6 h-6" />
+              </router-link>
+              <button @click="handleLogout" class="p-2 text-white/90 hover:text-white">
+                 <LogOut class="w-6 h-6" />
+              </button>
+            </div>
+         </div>
+         
+         <div class="flex items-center space-x-4 mb-4">
+            <div class="w-16 h-16 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center overflow-hidden">
+               <User class="w-10 h-10 text-slate-400" />
+            </div>
+            <div>
+               <h2 class="text-white text-lg font-bold">{{ authStore.user?.username }}</h2>
+               <div class="flex items-center text-brand-100 text-xs mt-1 bg-white/20 px-2 py-0.5 rounded-full w-fit">
+                  <span class="mr-1">★</span> Member Silver
+               </div>
+               <div class="text-brand-100 text-xs mt-1 truncate max-w-[200px]">{{ authStore.user?.address }}</div>
+            </div>
+         </div>
       </div>
     </div>
 
-    <main class="max-w-3xl mx-auto px-4 -mt-24 space-y-6 relative z-10">
-      <!-- Address Card -->
-      <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="font-bold text-gray-800 flex items-center">
-            <MapPin class="w-5 h-5 mr-2 text-brand-500" /> Shipping Address
-          </h2>
-          <button 
-            v-if="!isEditingAddress" 
-            @click="isEditingAddress = true"
-            class="text-sm text-brand-600 font-medium hover:underline"
-          >
-            Edit
-          </button>
-          <div v-else class="space-x-2">
-            <button @click="updateAddress" class="text-xs bg-brand-600 text-white px-3 py-1 rounded">Save</button>
-            <button @click="isEditingAddress = false" class="text-xs bg-gray-200 text-gray-700 px-3 py-1 rounded">Cancel</button>
-          </div>
-        </div>
-        
-        <div v-if="!isEditingAddress">
-          <p class="text-gray-600 leading-relaxed">{{ authStore.user?.address }}</p>
-        </div>
-        <textarea v-else v-model="newAddress" rows="3" class="w-full border rounded p-2"></textarea>
+    <main class="max-w-3xl mx-auto px-4 -mt-10 space-y-4 relative z-10">
+      
+      <!-- Order Status Bar (Shopee Style) -->
+      <div class="bg-white rounded-lg shadow-sm p-4">
+         <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-50">
+            <h3 class="text-sm font-bold text-gray-800">My Orders</h3>
+            <button class="text-xs text-gray-500 flex items-center">
+               View Purchase History <ChevronRight class="w-3 h-3 ml-1" />
+            </button>
+         </div>
+         <div class="flex justify-between text-center">
+            <div class="flex flex-col items-center w-1/4">
+               <Package class="w-6 h-6 text-gray-600 mb-1" />
+               <span class="text-xs text-gray-600">To Pay</span>
+            </div>
+            <div class="flex flex-col items-center w-1/4 relative">
+               <Truck class="w-6 h-6 text-gray-600 mb-1" />
+               <span class="text-xs text-gray-600">To Ship</span>
+               <span class="absolute -top-1 right-4 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold" v-if="orders.some(o => o.status === 'Dikemas')">{{ orders.filter(o => o.status === 'Dikemas').length }}</span>
+            </div>
+            <div class="flex flex-col items-center w-1/4 relative">
+               <Truck class="w-6 h-6 text-gray-600 mb-1" />
+               <span class="text-xs text-gray-600">To Receive</span>
+               <span class="absolute -top-1 right-4 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold" v-if="orders.some(o => o.status === 'Dikirim')">{{ orders.filter(o => o.status === 'Dikirim').length }}</span>
+            </div>
+            <div class="flex flex-col items-center w-1/4">
+               <CheckCircle class="w-6 h-6 text-gray-600 mb-1" />
+               <span class="text-xs text-gray-600">Completed</span>
+            </div>
+         </div>
       </div>
 
-      <!-- Orders -->
-      <div>
-        <h2 class="text-xl font-bold text-gray-800 mb-4 px-2">Order History</h2>
-        
-        <div v-if="orders.length > 0" class="space-y-4">
-          <div v-for="order in orders" :key="order.id" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 transition-all hover:shadow-md">
-            <div class="flex justify-between items-start mb-4 border-b border-gray-50 pb-3">
-              <div>
-                <span class="text-xs text-gray-400 font-mono">{{ order.id }}</span>
-                <p class="text-xs text-gray-500 mt-1">{{ formatDate(order.date) }}</p>
-              </div>
-              <div class="flex items-center px-3 py-1 rounded-full text-xs font-bold border" :class="getStatusColor(order.status)">
-                <component :is="getStatusIcon(order.status)" class="w-3 h-3 mr-1.5" />
-                {{ order.status }}
-              </div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="space-y-2">
-                    <p class="text-xs text-gray-500 uppercase font-semibold">Items</p>
-                    <ul class="text-sm text-gray-800 space-y-1">
-                        <li v-for="item in order.items" :key="item.id" class="flex justify-between">
-                            <span>{{ item.quantity }}x {{ item.name }}</span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="text-right flex flex-col justify-end">
-                    <p class="text-xs text-gray-500 uppercase font-semibold">Total Amount</p>
-                    <p class="text-lg font-bold text-brand-700">{{ formatPrice(order.total) }}</p>
-                    <p class="text-xs text-gray-400 mt-1">{{ order.paymentMethod === 'cash' ? 'COD' : order.paymentMethod.toUpperCase() }}</p>
-                </div>
-            </div>
-          </div>
-        </div>
-        <div v-else class="text-center py-10 text-gray-400 bg-white rounded-2xl border border-dashed border-gray-200">
-           <Package class="w-12 h-12 mx-auto mb-2 text-gray-200" />
-           <p>No orders yet.</p>
-        </div>
+      <!-- Menu List -->
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+         <div class="divide-y divide-gray-50">
+            <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+               <div class="flex items-center text-gray-700">
+                  <Heart class="w-5 h-5 mr-3 text-red-500" />
+                  <span class="text-sm">My Likes</span>
+               </div>
+               <ChevronRight class="w-4 h-4 text-gray-400" />
+            </button>
+            <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+               <div class="flex items-center text-gray-700">
+                  <CreditCard class="w-5 h-5 mr-3 text-blue-500" />
+                  <span class="text-sm">My Vouchers</span>
+               </div>
+               <ChevronRight class="w-4 h-4 text-gray-400" />
+            </button>
+            <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+               <div class="flex items-center text-gray-700">
+                  <Settings class="w-5 h-5 mr-3 text-gray-500" />
+                  <span class="text-sm">Account Settings</span>
+               </div>
+               <ChevronRight class="w-4 h-4 text-gray-400" />
+            </button>
+             <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+               <div class="flex items-center text-gray-700">
+                  <HelpCircle class="w-5 h-5 mr-3 text-green-500" />
+                  <span class="text-sm">Help Centre</span>
+               </div>
+               <ChevronRight class="w-4 h-4 text-gray-400" />
+            </button>
+         </div>
       </div>
+
+       <!-- Recent Orders List (Simplified) -->
+      <div v-if="orders.length > 0" class="space-y-3">
+         <h3 class="text-sm font-bold text-gray-500 px-2 mt-2">Recent Purchases</h3>
+         <div v-for="order in orders.slice(0, 3)" :key="order.id" class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex flex-col gap-2">
+            <div class="flex justify-between items-start border-b border-gray-50 pb-2">
+               <span class="font-bold text-sm text-gray-800">{{ order.items[0]?.name }} <span v-if="order.items.length > 1" class="font-normal text-gray-500 text-xs">+ {{ order.items.length - 1 }} others</span></span>
+               <span class="text-brand-600 text-xs uppercase font-bold">{{ order.status }}</span>
+            </div>
+            <div class="flex justify-between items-center pt-1">
+               <span class="text-xs text-gray-500">{{ formatDate(order.date) }}</span>
+               <span class="text-sm font-bold text-brand-600">{{ formatPrice(order.total) }}</span>
+            </div>
+            <div class="mt-2 text-right">
+               <button class="bg-brand-600 text-white text-xs px-4 py-2 rounded shadow-sm hover:bg-brand-700">Buy Again</button>
+            </div>
+         </div>
+      </div>
+
     </main>
     
     <div class="hidden md:block fixed bottom-10 right-10 z-50">
