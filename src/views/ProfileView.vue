@@ -11,6 +11,38 @@ import {
 const authStore = useAuthStore()
 const router = useRouter()
 const orders = ref([])
+import { computed } from 'vue'
+
+const memberInfo = computed(() => {
+  const total = authStore.user?.totalSpent || 0
+  let tier = 'Bronze'
+  let nextTier = 'Silver'
+  let threshold = 25000
+  let prevThreshold = 0
+  
+  if (total >= 250000) {
+    tier = 'Platinum'
+    nextTier = null
+    threshold = Infinity
+    prevThreshold = 250000
+  } else if (total >= 100000) {
+    tier = 'Gold'
+    nextTier = 'Platinum'
+    threshold = 250000
+    prevThreshold = 100000
+  } else if (total >= 25000) {
+    tier = 'Silver'
+    nextTier = 'Gold'
+    threshold = 100000
+    prevThreshold = 25000
+  }
+  
+  const progress = nextTier ? ((total - prevThreshold) / (threshold - prevThreshold)) * 100 : 100
+  const remaining = nextTier ? threshold - total : 0
+  
+  return { tier, nextTier, progress, remaining }
+})
+
 const isEditingAddress = ref(false)
 const newAddress = ref('')
 
@@ -134,10 +166,28 @@ const saveSettings = () => {
             </div>
             <div>
                <h2 class="text-white text-lg font-bold">{{ authStore.user?.username }}</h2>
-               <div class="flex items-center text-brand-100 text-xs mt-1 bg-white/20 px-2 py-0.5 rounded-full w-fit">
-                  <span class="mr-1">★</span> Member Silver
+               <div :class="{
+                 'bg-amber-700/80 text-white': memberInfo.tier === 'Bronze',
+                 'bg-slate-300 text-slate-800': memberInfo.tier === 'Silver',
+                 'bg-yellow-400 text-yellow-900': memberInfo.tier === 'Gold',
+                 'bg-stone-300 text-slate-900 border border-white': memberInfo.tier === 'Platinum'
+               }" class="flex items-center text-xs mt-1 px-3 py-1 rounded-full w-fit font-bold backdrop-blur-sm shadow-sm transition-colors duration-500">
+                  <span class="mr-1 shadow-sm">★</span> Member {{ memberInfo.tier }}
                </div>
-               <div class="text-brand-100 text-xs mt-1 truncate max-w-[200px]">{{ authStore.user?.address }}</div>
+               
+               <div class="mt-2 w-full max-w-[200px]">
+                 <div class="h-1.5 bg-black/20 rounded-full overflow-hidden backdrop-blur-sm">
+                    <div class="h-full bg-white/90 transition-all duration-1000" :style="{ width: `${memberInfo.progress}%` }"></div>
+                 </div>
+                 <p class="text-[10px] text-white/80 mt-1" v-if="memberInfo.nextTier">
+                   <span class="font-bold">{{ formatPrice(memberInfo.remaining) }}</span> to {{ memberInfo.nextTier }}
+                 </p>
+                 <p class="text-[10px] text-white/80 mt-1 font-bold" v-else>Max Level Reached!</p>
+               </div>
+               
+               <div class="text-white/80 text-xs mt-2 truncate max-w-[200px] flex items-center">
+                 <MapPin class="w-3 h-3 mr-1 inline" /> {{ authStore.user?.address || 'No address set' }}
+               </div>
             </div>
          </div>
       </div>

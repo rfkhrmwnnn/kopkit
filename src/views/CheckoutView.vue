@@ -30,13 +30,23 @@ const confirmOrder = () => {
   
   // Simulate API
   setTimeout(() => {
+    // Calculate final total with discount from current store state
+    const currentDiscountInfo = cartStore.discountInfo
+    // If discountInfo exists (it should), use it. otherwise fallback
+    const finalTotal = currentDiscountInfo ? currentDiscountInfo.finalPrice : (cartStore.totalPrice * 0.95) // Fallback logic if needed, but computed updates
+    
     // Save order
     const orderIndex = Math.floor(Math.random() * 10000)
     const newOrder = {
       id: `ORD-${orderIndex}`,
       date: new Date().toISOString(),
       items: [...cartStore.items],
-      total: cartStore.totalPrice * 1.1,
+      total: finalTotal * 1.1, // Tax on top of discounted price? Or discount after tax? Usually discount is on subtotal.
+      // Let's stick to: Subtotal - Discount + Tax.
+      // Wait, standard practice: (Subtotal - Discount) * (1 + TaxRate)
+      // Earlier code was: total * 1.1.
+      // Let's apply tax to the Final Price after discount.
+      
       status: 'Dikemas', // Packed
       address: address.value,
       paymentMethod: paymentMethod.value,
@@ -51,6 +61,9 @@ const confirmOrder = () => {
     // Update user address if changed
     authStore.updateAddress(address.value)
     
+    // Accumulate Spend for Membership Upgrade
+    authStore.accumulateSpend(finalTotal)
+
     // Clear cart
     cartStore.clearCart()
     

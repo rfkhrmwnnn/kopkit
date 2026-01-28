@@ -58,6 +58,18 @@ const formatPrice = (price) => {
               <span>Subtotal ({{ cartStore.totalItems }} items)</span>
               <span class="font-medium text-slate-700">{{ formatPrice(cartStore.totalPrice) }}</span>
             </div>
+            
+            <!-- Member Discount -->
+            <div v-if="cartStore.discountInfo" class="flex justify-between text-sm text-green-600 bg-green-50 p-2 rounded-lg border border-green-100">
+               <div>
+                  <span class="font-bold flex items-center gap-1">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                     {{ cartStore.discountInfo.tier }} Member
+                  </span>
+                  <span class="text-xs opacity-75">Discount {{ cartStore.discountInfo.rate * 100 }}%</span>
+               </div>
+               <span class="font-bold">-{{ formatPrice(cartStore.discountInfo.amount) }}</span>
+            </div>
             <div class="flex justify-between text-sm text-slate-500">
               <span>Tax (10%)</span>
               <span class="font-medium text-slate-700">{{ formatPrice(cartStore.totalPrice * 0.1) }}</span>
@@ -65,7 +77,7 @@ const formatPrice = (price) => {
           </div>
           <div class="flex justify-between font-bold text-xl text-slate-900 mb-8">
             <span>Total</span>
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-indigo-600">{{ formatPrice(cartStore.totalPrice * 1.1) }}</span>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-indigo-600">{{ formatPrice((cartStore.discountInfo ? cartStore.discountInfo.finalPrice : cartStore.totalPrice) * 1.1) }}</span>
           </div>
           <router-link 
             to="/checkout"

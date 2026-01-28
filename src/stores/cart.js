@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { useAuthStore } from './auth'
 
 export const useCartStore = defineStore('cart', () => {
   const items = ref([])

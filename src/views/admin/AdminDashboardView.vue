@@ -21,19 +21,25 @@ const logout = () => {
   router.push('/login')
 }
 
-// --- Mock Data for Customers ---
-const customers = ref([
-  { id: 1, name: 'Budi Santoso', email: 'budi@example.com', role: 'User', joined: '2023-01-15' },
-  { id: 2, name: 'Siti Aminah', email: 'siti@example.com', role: 'Premium', joined: '2023-02-20' },
-  { id: 3, name: 'Rudi Hartono', email: 'rudi@example.com', role: 'User', joined: '2023-03-10' },
-  { id: 4, name: 'Dewi Lestari', email: 'dewi@example.com', role: 'User', joined: '2023-04-05' },
-])
+// --- Customers ---
+const customers = ref([])
 
 const orders = ref([])
 
 onMounted(() => {
   const savedOrders = JSON.parse(localStorage.getItem('orders') || '[]')
   orders.value = savedOrders.reverse()
+
+  // Load registered users
+  const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+  customers.value = registeredUsers.map((u, index) => ({
+    id: index + 1,
+    name: u.username,
+    email: '-', // Email not captured in simple registration
+    role: u.role || 'User',
+    joined: '2023-01-01', // Date not captured, using default or random
+    address: u.address
+  }))
 })
 
 const updateOrderStatus = (orderId, newStatus) => {
@@ -390,24 +396,31 @@ const stats = computed(() => [
                   <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
                     <tr>
                       <th class="px-6 py-4">Name</th>
-                      <th class="px-6 py-4">Email</th>
+                      <th class="px-6 py-4">Address</th>
                       <th class="px-6 py-4">Role</th>
-                      <th class="px-6 py-4">Joined Date</th>
+                      <th class="px-6 py-4">Status</th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
                     <tr v-for="customer in customers" :key="customer.id" class="hover:bg-slate-50 transition-colors">
                       <td class="px-6 py-4 font-medium text-slate-900 flex items-center">
                          <div class="w-8 h-8 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center font-bold mr-3">
-                           {{ customer.name.charAt(0) }}
+                           {{ customer.name.charAt(0).toUpperCase() }}
                          </div>
                          {{ customer.name }}
                       </td>
-                      <td class="px-6 py-4 text-slate-500">{{ customer.email }}</td>
+                      <td class="px-6 py-4 text-slate-500 max-w-xs truncate">{{ customer.address }}</td>
                       <td class="px-6 py-4">
-                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-bold">{{ customer.role }}</span>
+                        <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-bold capitalize">{{ customer.role }}</span>
                       </td>
-                      <td class="px-6 py-4 text-slate-500">{{ customer.joined }}</td>
+                      <td class="px-6 py-4 text-slate-500">
+                        <span class="flex items-center text-green-600 text-xs font-bold"><div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div> Active</span>
+                      </td>
+                    </tr>
+                    <tr v-if="customers.length === 0">
+                       <td colspan="4" class="px-6 py-8 text-center text-slate-400">
+                          No registered customers found.
+                       </td>
                     </tr>
                   </tbody>
                </table>

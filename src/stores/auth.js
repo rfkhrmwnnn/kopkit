@@ -13,7 +13,7 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('user', JSON.stringify(user.value))
       return true
     } else if (username === 'demo' && password === 'demo123') {
-      user.value = { username: 'demo', role: 'user', address: 'Jl. Contoh No. 123' }
+      user.value = { username: 'demo', role: 'user', address: 'Jl. Contoh No. 123', totalSpent: 0 }
       localStorage.setItem('user', JSON.stringify(user.value))
       return true
     }
@@ -23,7 +23,13 @@ export const useAuthStore = defineStore('auth', () => {
     const foundUser = registeredUsers.find(u => u.username === username && u.password === password)
     
     if (foundUser) {
-      user.value = { username: foundUser.username, role: 'user', address: foundUser.address }
+      // Ensure totalSpent exists - Load from registered details
+      user.value = { 
+        username: foundUser.username, 
+        role: 'user', 
+        address: foundUser.address,
+        totalSpent: foundUser.totalSpent || 0
+      }
       localStorage.setItem('user', JSON.stringify(user.value))
       return true
     }
@@ -39,12 +45,12 @@ export const useAuthStore = defineStore('auth', () => {
       return false // User exists
     }
 
-    const newUser = { username, password, address, role: 'user' }
+    const newUser = { username, password, address, role: 'user', totalSpent: 0 }
     registeredUsers.push(newUser)
     localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers))
     
     // Auto login
-    user.value = { username, role: 'user', address }
+    user.value = { username, role: 'user', address, totalSpent: 0 }
     localStorage.setItem('user', JSON.stringify(user.value))
     return true
   }
@@ -85,5 +91,27 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { user, login, logout, register, updateAddress, updateProfile }
+  // --- Membership Logic ---
+  function getMemberStatus(userObj) {
+    if (!userObj || userObj.role === 'admin') return { tier: 'Admin', discount: 0 }
+    
+    // Default stats if missing
+    const totalSpent = userObj.totalSpent || 0
+    
+    if (totalSpent >= 250000) return { tier: 'Platinum', discount: 0.35 }
+    if (totalSpent >= 100000) return { tier: 'Gold', discount: 0.25 }
+    if (totalSpent >= 25000) return { tier: 'Silver', discount: 0.15 }
+    return { tier: 'Bronze', discount: 0.05 }
+  }
+
+  function accumulateSpend(amount) {
+    if (user.value) {
+      const currentSpent = user.value.totalSpent || 0
+      const newTotal = currentSpent + amount
+      
+      updateProfile({ totalSpent: newTotal })
+    }
+  }
+
+  return { user, login, logout, register, updateAddress, updateProfile, getMemberStatus, accumulateSpend }
 })
