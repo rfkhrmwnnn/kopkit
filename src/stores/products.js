@@ -88,5 +88,31 @@ export const useProductStore = defineStore('products', () => {
     }
   }
 
-  return { products, categories, searchQuery, selectedCategory, filteredProducts, addProduct, removeProduct, updateProduct }
+  // --- Likes Functionality ---
+  const getLikedProducts = (username) => {
+    return JSON.parse(localStorage.getItem(`liked_products_${username}`) || '[]')
+  }
+
+  const isLiked = (username, productId) => {
+    if (!username) return false
+    const liked = getLikedProducts(username)
+    return liked.includes(productId)
+  }
+
+  const toggleLike = (username, productId) => {
+    if (!username) return
+    let liked = getLikedProducts(username)
+    if (liked.includes(productId)) {
+      liked = liked.filter(id => id !== productId)
+    } else {
+      liked.push(productId)
+    }
+    localStorage.setItem(`liked_products_${username}`, JSON.stringify(liked))
+    // Trigger reactivity if needed, but for now direct localStorage read in components or forced refresh might be needed
+    // Better way: use a reactive ref map or let components handle it. 
+    // For simplicity with Pinia: we can expose a reactive Set or Array if we want global state. 
+    // But since it's user specific, passing username is key.
+  }
+
+  return { products, categories, searchQuery, selectedCategory, filteredProducts, addProduct, removeProduct, updateProduct, isLiked, toggleLike }
 })

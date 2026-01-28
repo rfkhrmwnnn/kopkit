@@ -3,10 +3,12 @@ import { computed } from 'vue'
 import NavBar from '@/components/NavBar.vue'
 import { useProductStore } from '@/stores/products'
 import { useCartStore } from '@/stores/cart'
-import { Search } from 'lucide-vue-next'
+import { useAuthStore } from '@/stores/auth'
+import { Search, Heart } from 'lucide-vue-next'
 
 const productStore = useProductStore()
 const cartStore = useCartStore()
+const authStore = useAuthStore()
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(price)
@@ -15,6 +17,14 @@ const formatPrice = (price) => {
 const addToCart = (product) => {
   cartStore.addToCart(product)
   alert('Added to cart!')
+}
+
+const toggleLike = (product) => {
+  if (!authStore.user) {
+    alert('Please login to like products')
+    return
+  }
+  productStore.toggleLike(authStore.user.username, product.id)
 }
 </script>
 
@@ -68,6 +78,15 @@ const addToCart = (product) => {
         >
           <div class="aspect-square bg-gray-100 rounded-xl mb-4 overflow-hidden relative">
              <img :src="product.image" :alt="product.name" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+             <!-- Like Button -->
+             <button 
+               @click.stop="toggleLike(product)"
+               class="absolute top-3 right-3 p-2 rounded-full bg-white/80 backdrop-blur-sm shadow-sm hover:bg-white transition-all z-20 group-hover:scale-110"
+               :class="{ 'text-red-500': productStore.isLiked(authStore.user?.username, product.id), 'text-slate-400': !productStore.isLiked(authStore.user?.username, product.id) }"
+             >
+                <Heart class="w-5 h-5 transition-transform active:scale-95" :class="{ 'fill-current': productStore.isLiked(authStore.user?.username, product.id) }" />
+             </button>
+
              <!-- Quick Add overlay -->
              <button @click.stop="addToCart(product)" class="absolute bottom-3 right-3 bg-white text-brand-600 p-2.5 rounded-full shadow-lg opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:bg-brand-50 hover:scale-110 z-10 md:flex hidden items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>

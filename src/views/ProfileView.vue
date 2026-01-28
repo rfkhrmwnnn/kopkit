@@ -61,6 +61,23 @@ const handleLogout = () => {
   router.push('/login')
 }
 
+import { useProductStore } from '@/stores/products'
+
+const productStore = useProductStore()
+
+// --- Likes Modal ---
+const isLikesModalOpen = ref(false)
+const likedProducts = ref([])
+
+const openLikesModal = () => {
+  if (authStore.user) {
+    const userLikes = productStore.getLikedProducts(authStore.user.username)
+    // Filter full product objects
+    likedProducts.value = productStore.products.filter(p => userLikes.includes(p.id))
+  }
+  isLikesModalOpen.value = true
+}
+
 // --- History Modal ---
 const isHistoryModalOpen = ref(false)
 const openHistoryModal = () => {
@@ -161,7 +178,7 @@ const saveSettings = () => {
       <!-- Menu List -->
       <div class="bg-white rounded-lg shadow-sm overflow-hidden">
          <div class="divide-y divide-gray-50">
-            <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+            <button @click="openLikesModal" class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
                <div class="flex items-center text-gray-700">
                   <Heart class="w-5 h-5 mr-3 text-red-500" />
                   <span class="text-sm">My Likes</span>
@@ -182,13 +199,13 @@ const saveSettings = () => {
                </div>
                <ChevronRight class="w-4 h-4 text-gray-400" />
             </button>
-             <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+             <a href="https://wa.me/6283869785398" target="_blank" class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
                <div class="flex items-center text-gray-700">
                   <HelpCircle class="w-5 h-5 mr-3 text-green-500" />
                   <span class="text-sm">Help Centre</span>
                </div>
                <ChevronRight class="w-4 h-4 text-gray-400" />
-            </button>
+            </a>
          </div>
       </div>
 
@@ -253,6 +270,32 @@ const saveSettings = () => {
          <div class="flex justify-end space-x-3 mt-6">
             <button @click="isSettingsModalOpen = false" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
             <button @click="saveSettings" class="bg-brand-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-brand-700 shadow-md">Save Changes</button>
+         </div>
+      </div>
+    </div>
+
+    <!-- My Likes Modal -->
+    <div v-if="isLikesModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 animate-scale-in max-h-[80vh] flex flex-col">
+         <div class="flex justify-between items-center mb-4">
+           <h3 class="text-xl font-bold text-slate-800">My Likes</h3>
+           <button @click="isLikesModalOpen = false" class="text-slate-400 hover:text-slate-600"><div class="text-2xl">&times;</div></button>
+         </div>
+         <div class="flex-1 overflow-y-auto custom-scrollbar space-y-4 pr-2">
+            <div v-if="likedProducts.length === 0" class="text-center py-10 text-slate-400">No liked products yet.</div>
+            <div v-for="product in likedProducts" :key="product.id" class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center gap-4">
+               <img :src="product.image" class="w-16 h-16 rounded-lg object-cover bg-gray-100">
+               <div class="flex-1">
+                  <h4 class="font-bold text-slate-800">{{ product.name }}</h4>
+                  <p class="text-brand-600 font-bold text-sm">{{ formatPrice(product.price) }}</p>
+               </div>
+               <button 
+                  @click="productStore.toggleLike(authStore.user?.username, product.id); likedProducts = likedProducts.filter(p => p.id !== product.id)" 
+                  class="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded-full"
+               >
+                  <Heart class="w-5 h-5 fill-current" />
+               </button>
+            </div>
          </div>
       </div>
     </div>

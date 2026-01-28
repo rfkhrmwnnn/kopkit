@@ -41,7 +41,7 @@ const confirmOrder = () => {
       address: address.value,
       paymentMethod: paymentMethod.value,
       username: authStore.user?.username || 'Guest',
-      resi: '' // Tracking number
+      resi: 'JP' + Math.floor(Math.random() * 10000000000) // Auto-generated Tracking Number
     }
 
     const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]')
