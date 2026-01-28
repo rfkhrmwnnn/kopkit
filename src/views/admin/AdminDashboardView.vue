@@ -128,44 +128,44 @@ const stats = computed(() => [
   <div class="flex h-screen bg-slate-50 overflow-hidden">
     <!-- Sidebar -->
     <aside 
-      class="bg-slate-900 text-white transition-all duration-300 flex flex-col z-30"
+      class="bg-slate-900 text-white transition-all duration-300 flex flex-col z-30 shadow-2xl"
       :class="isSidebarOpen ? 'w-64' : 'w-20'"
     >
-      <div class="h-16 flex items-center justify-center border-b border-slate-800">
-        <h1 class="font-black tracking-widest text-xl" v-if="isSidebarOpen">KOPKIT ADM</h1>
-        <h1 class="font-black text-xl" v-else>K</h1>
+      <div class="h-20 flex items-center justify-center border-b border-slate-800/50 bg-slate-900/50 backdrop-blur-sm">
+        <h1 class="font-black tracking-widest text-xl bg-gradient-to-r from-brand-400 to-indigo-400 bg-clip-text text-transparent transform transition-all hover:scale-105" v-if="isSidebarOpen">KOPKIT ADM</h1>
+        <h1 class="font-black text-xl bg-gradient-to-r from-brand-400 to-indigo-400 bg-clip-text text-transparent" v-else>K</h1>
       </div>
       
-      <nav class="flex-1 py-6 space-y-2 px-3">
-        <button @click="currentView = 'dashboard'" :class="currentView === 'dashboard' ? 'bg-brand-600 shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:text-white hover:bg-slate-800'" class="w-full flex items-center px-4 py-3 rounded-xl transition-colors">
-          <LayoutDashboard class="w-5 h-5 flex-shrink-0" />
-          <span class="ml-3 font-medium truncate" v-if="isSidebarOpen">Dashboard</span>
+      <nav class="flex-1 py-6 space-y-2 px-3 overflow-y-auto custom-scrollbar">
+        <button @click="currentView = 'dashboard'" :class="currentView === 'dashboard' ? 'bg-gradient-to-r from-brand-600 to-indigo-600 shadow-lg shadow-brand-900/50 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'" class="w-full flex items-center px-4 py-3.5 rounded-xl transition-all duration-300 group">
+          <LayoutDashboard class="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110" />
+          <span class="ml-3 font-medium truncate transition-opacity" :class="isSidebarOpen ? 'opacity-100' : 'opacity-0 hidden'">Dashboard</span>
         </button>
-        <button @click="currentView = 'orders'" :class="currentView === 'orders' ? 'bg-brand-600 shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:text-white hover:bg-slate-800'" class="w-full flex items-center px-4 py-3 rounded-xl transition-colors">
-          <ShoppingBag class="w-5 h-5 flex-shrink-0" />
-          <span class="ml-3 font-medium truncate" v-if="isSidebarOpen">Orders</span>
+        <button @click="currentView = 'orders'" :class="currentView === 'orders' ? 'bg-gradient-to-r from-brand-600 to-indigo-600 shadow-lg shadow-brand-900/50 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'" class="w-full flex items-center px-4 py-3.5 rounded-xl transition-all duration-300 group">
+          <ShoppingBag class="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110" />
+          <span class="ml-3 font-medium truncate transition-opacity" :class="isSidebarOpen ? 'opacity-100' : 'opacity-0 hidden'">Orders</span>
         </button>
-        <button @click="currentView = 'products'" :class="currentView === 'products' ? 'bg-brand-600 shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:text-white hover:bg-slate-800'" class="w-full flex items-center px-4 py-3 rounded-xl transition-colors">
+        <button @click="currentView = 'products'" :class="currentView === 'products' ? 'bg-gradient-to-r from-brand-600 to-indigo-600 shadow-lg shadow-brand-900/50 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'" class="w-full flex items-center px-4 py-3.5 rounded-xl transition-all duration-300 group">
           <div class="relative">
-             <ShoppingBag class="w-5 h-5 flex-shrink-0" />
-             <div class="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2"></div>
+             <ShoppingBag class="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110" />
+             <div class="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2 animate-pulse"></div>
           </div>
-          <span class="ml-3 font-medium truncate" v-if="isSidebarOpen">Products</span>
+          <span class="ml-3 font-medium truncate transition-opacity" :class="isSidebarOpen ? 'opacity-100' : 'opacity-0 hidden'">Products</span>
         </button>
-        <button @click="currentView = 'customers'" :class="currentView === 'customers' ? 'bg-brand-600 shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:text-white hover:bg-slate-800'" class="w-full flex items-center px-4 py-3 rounded-xl transition-colors">
-          <Users class="w-5 h-5 flex-shrink-0" />
-          <span class="ml-3 font-medium truncate" v-if="isSidebarOpen">Customers</span>
+        <button @click="currentView = 'customers'" :class="currentView === 'customers' ? 'bg-gradient-to-r from-brand-600 to-indigo-600 shadow-lg shadow-brand-900/50 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'" class="w-full flex items-center px-4 py-3.5 rounded-xl transition-all duration-300 group">
+          <Users class="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110" />
+          <span class="ml-3 font-medium truncate transition-opacity" :class="isSidebarOpen ? 'opacity-100' : 'opacity-0 hidden'">Customers</span>
         </button>
-        <button @click="currentView = 'settings'" :class="currentView === 'settings' ? 'bg-brand-600 shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:text-white hover:bg-slate-800'" class="w-full flex items-center px-4 py-3 rounded-xl transition-colors">
-          <Settings class="w-5 h-5 flex-shrink-0" />
-          <span class="ml-3 font-medium truncate" v-if="isSidebarOpen">Settings</span>
+        <button @click="currentView = 'settings'" :class="currentView === 'settings' ? 'bg-gradient-to-r from-brand-600 to-indigo-600 shadow-lg shadow-brand-900/50 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'" class="w-full flex items-center px-4 py-3.5 rounded-xl transition-all duration-300 group">
+          <Settings class="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110" />
+          <span class="ml-3 font-medium truncate transition-opacity" :class="isSidebarOpen ? 'opacity-100' : 'opacity-0 hidden'">Settings</span>
         </button>
       </nav>
       
-      <div class="p-4 border-t border-slate-800">
-        <button @click="logout" class="flex items-center w-full px-4 py-2 text-slate-400 hover:text-red-400 transition-colors">
-          <LogOut class="w-5 h-5" />
-          <span class="ml-3 font-medium" v-if="isSidebarOpen">Logout</span>
+      <div class="p-4 border-t border-slate-800/50 bg-slate-900/30">
+        <button @click="logout" class="flex items-center w-full px-4 py-2 text-slate-400 hover:text-red-400 transition-colors group">
+          <LogOut class="w-5 h-5 transition-transform group-hover:-translate-x-1" />
+          <span class="ml-3 font-medium transition-opacity" :class="isSidebarOpen ? 'opacity-100' : 'opacity-0 hidden'">Logout</span>
         </button>
       </div>
     </aside>
@@ -194,11 +194,11 @@ const stats = computed(() => [
         <div class="max-w-7xl mx-auto">
           
           <!-- DASHBOARD VIEW -->
-          <div v-if="currentView === 'dashboard'" class="space-y-6">
+          <div v-if="currentView === 'dashboard'" class="space-y-6 animate-fade-in">
             <h2 class="text-2xl font-bold text-slate-800">Dashboard Overview</h2>
-            <!-- Orders Summary -->
+             <!-- Orders Summary -->
              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center hover:shadow-md transition-shadow animate-slide-up" style="animation-delay: 100ms;">
                    <div class="p-4 rounded-full bg-yellow-100 text-yellow-600 mr-4">
                       <ShoppingBag class="w-8 h-8"/>
                    </div>
@@ -207,7 +207,7 @@ const stats = computed(() => [
                       <p class="text-2xl font-bold text-slate-800">{{ orders.filter(o => o.status === 'Dikemas').length }}</p>
                    </div>
                 </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center hover:shadow-md transition-shadow animate-slide-up" style="animation-delay: 200ms;">
                    <div class="p-4 rounded-full bg-blue-100 text-blue-600 mr-4">
                       <Users class="w-8 h-8"/>
                    </div>
@@ -216,7 +216,7 @@ const stats = computed(() => [
                       <p class="text-2xl font-bold text-slate-800">{{ orders.filter(o => o.status === 'Dikirim').length }}</p>
                    </div>
                 </div>
-                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center">
+                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center hover:shadow-md transition-shadow animate-slide-up" style="animation-delay: 300ms;">
                    <div class="p-4 rounded-full bg-green-100 text-green-600 mr-4">
                       <ShoppingBag class="w-8 h-8"/>
                    </div>
@@ -226,26 +226,9 @@ const stats = computed(() => [
                    </div>
                 </div>
              </div>
-            <!-- Stats Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div v-for="stat in stats" :key="stat.title" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <div class="flex justify-between items-start mb-4">
-                  <div>
-                     <p class="text-xs text-slate-500 font-medium uppercase">{{ stat.title }}</p>
-                     <h3 class="text-2xl font-bold text-slate-800 mt-1">{{ stat.value }}</h3>
-                  </div>
-                  <span 
-                    class="px-2 py-1 rounded-lg text-xs font-bold"
-                    :class="stat.isPositive ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'"
-                  >
-                    {{ stat.change }}
-                  </span>
-                </div>
-              </div>
-            </div>
-            
+             
              <!-- Recent Orders Table -->
-             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden animate-slide-up" style="animation-delay: 400ms;">
                 <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
                    <h3 class="font-bold text-slate-800">Recent Orders</h3>
                    <button @click="currentView = 'orders'" class="text-sm text-brand-600 hover:underline">View All</button>
@@ -261,7 +244,7 @@ const stats = computed(() => [
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
-                    <tr v-for="order in orders.slice(0, 5)" :key="order.id" class="hover:bg-slate-50">
+                    <tr v-for="order in orders.slice(0, 5)" :key="order.id" class="hover:bg-slate-50 transition-colors">
                       <td class="px-6 py-4 font-mono text-slate-500 text-xs">{{ order.id }}</td>
                       <td class="px-6 py-4 font-medium text-slate-900">
                          {{ order.address ? order.address.substring(0, 20) + '...' : 'Customer' }}
@@ -277,14 +260,14 @@ const stats = computed(() => [
                         <button 
                            v-if="order.status === 'Dikemas'" 
                            @click="updateOrderStatus(order.id, 'Dikirim')"
-                           class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-200"
+                           class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-200 transition-colors"
                         >
                            Ship Order
                         </button>
                         <button 
                            v-if="order.status === 'Dikirim'" 
                            @click="updateOrderStatus(order.id, 'Selesai')" 
-                           class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-xs font-bold hover:bg-green-200"
+                           class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-xs font-bold hover:bg-green-200 transition-colors"
                         >
                            Complete
                         </button>
@@ -300,9 +283,9 @@ const stats = computed(() => [
           </div>
 
           <!-- ORDERS VIEW (New) -->
-          <div v-else-if="currentView === 'orders'" class="space-y-6">
+          <div v-else-if="currentView === 'orders'" class="space-y-6 animate-fade-in">
              <h2 class="text-2xl font-bold text-slate-800">Order Management</h2>
-             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden animate-slide-up">
                <table class="w-full text-left">
                   <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
                     <tr>
@@ -314,7 +297,7 @@ const stats = computed(() => [
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
-                    <tr v-for="order in orders" :key="order.id" class="hover:bg-slate-50">
+                    <tr v-for="order in orders" :key="order.id" class="hover:bg-slate-50 transition-colors">
                       <td class="px-6 py-4 font-mono text-slate-500 text-xs">{{ order.id }}</td>
                       <td class="px-6 py-4 font-medium text-slate-900">
                          {{ order.address ? order.address.substring(0, 20) + '...' : 'Customer' }}
@@ -330,14 +313,14 @@ const stats = computed(() => [
                         <button 
                            v-if="order.status === 'Dikemas'" 
                            @click="updateOrderStatus(order.id, 'Dikirim')"
-                           class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-200"
+                           class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-200 transition-colors"
                         >
                            Ship Order
                         </button>
                         <button 
                            v-if="order.status === 'Dikirim'" 
                            @click="updateOrderStatus(order.id, 'Selesai')" 
-                           class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-xs font-bold hover:bg-green-200"
+                           class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-xs font-bold hover:bg-green-200 transition-colors"
                         >
                            Complete
                         </button>
@@ -353,15 +336,15 @@ const stats = computed(() => [
           </div>
 
           <!-- PRODUCTS VIEW -->
-          <div v-else-if="currentView === 'products'" class="space-y-6">
+          <div v-else-if="currentView === 'products'" class="space-y-6 animate-fade-in">
             <div class="flex justify-between items-center">
               <h2 class="text-2xl font-bold text-slate-800">Product Management</h2>
-              <button @click="openAddProductModal" class="bg-brand-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-brand-700 flex items-center">
+              <button @click="openAddProductModal" class="bg-brand-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-brand-700 flex items-center transition-transform active:scale-95 shadow-lg shadow-brand-500/30">
                 <Plus class="w-5 h-5 mr-2" /> Add Product
               </button>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden animate-slide-up">
                <table class="w-full text-left">
                   <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
                     <tr>
@@ -372,15 +355,15 @@ const stats = computed(() => [
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
-                    <tr v-for="product in productStore.products" :key="product.id" class="hover:bg-slate-50">
+                    <tr v-for="product in productStore.products" :key="product.id" class="hover:bg-slate-50 transition-colors">
                       <td class="px-6 py-4 font-medium text-slate-900">{{ product.name }}</td>
                       <td class="px-6 py-4 text-slate-500">
                         <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-bold">{{ product.category }}</span>
                       </td>
                       <td class="px-6 py-4 text-slate-700">Rp {{ product.price.toLocaleString('id-ID') }}</td>
                       <td class="px-6 py-4 text-right space-x-2">
-                        <button @click="openEditProductModal(product)" class="text-blue-500 hover:text-blue-700"><Edit class="w-4 h-4" /></button>
-                        <button @click="deleteProduct(product.id)" class="text-red-500 hover:text-red-700"><Trash2 class="w-4 h-4" /></button>
+                        <button @click="openEditProductModal(product)" class="text-blue-500 hover:text-blue-700 transition-colors"><Edit class="w-4 h-4" /></button>
+                        <button @click="deleteProduct(product.id)" class="text-red-500 hover:text-red-700 transition-colors"><Trash2 class="w-4 h-4" /></button>
                       </td>
                     </tr>
                   </tbody>
@@ -389,9 +372,9 @@ const stats = computed(() => [
           </div>
 
           <!-- CUSTOMERS VIEW -->
-          <div v-else-if="currentView === 'customers'" class="space-y-6">
+          <div v-else-if="currentView === 'customers'" class="space-y-6 animate-fade-in">
              <h2 class="text-2xl font-bold text-slate-800">Customer List</h2>
-             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden animate-slide-up">
                <table class="w-full text-left">
                   <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
                     <tr>
@@ -402,7 +385,7 @@ const stats = computed(() => [
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
-                    <tr v-for="customer in customers" :key="customer.id" class="hover:bg-slate-50">
+                    <tr v-for="customer in customers" :key="customer.id" class="hover:bg-slate-50 transition-colors">
                       <td class="px-6 py-4 font-medium text-slate-900 flex items-center">
                          <div class="w-8 h-8 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center font-bold mr-3">
                            {{ customer.name.charAt(0) }}
@@ -421,21 +404,21 @@ const stats = computed(() => [
           </div>
 
           <!-- SETTINGS VIEW -->
-          <div v-else-if="currentView === 'settings'" class="space-y-6">
+          <div v-else-if="currentView === 'settings'" class="space-y-6 animate-fade-in">
              <h2 class="text-2xl font-bold text-slate-800">Application Settings</h2>
              
              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                <!-- General Settings -->
-               <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+               <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 animate-slide-up" style="animation-delay: 100ms;">
                   <h3 class="font-bold text-lg mb-4 text-slate-800">General Information</h3>
                   <div class="space-y-4">
                      <div>
                        <label class="block text-sm font-medium text-slate-700 mb-1">Store Name</label>
-                       <input v-model="configStore.storeName" type="text" class="w-full border p-2 border-slate-300 rounded-lg shadow-sm focus:border-brand-500 focus:ring-brand-500 outline-none">
+                       <input v-model="configStore.storeName" type="text" class="w-full border p-2 border-slate-300 rounded-lg shadow-sm focus:border-brand-500 focus:ring-brand-500 outline-none transition-all focus:shadow-md">
                      </div>
                      <div>
                        <label class="block text-sm font-medium text-slate-700 mb-1">Admin Email Notification</label>
-                       <input v-model="configStore.adminEmail" type="email" class="w-full border p-2 border-slate-300 rounded-lg shadow-sm focus:border-brand-500 focus:ring-brand-500 outline-none">
+                       <input v-model="configStore.adminEmail" type="email" class="w-full border p-2 border-slate-300 rounded-lg shadow-sm focus:border-brand-500 focus:ring-brand-500 outline-none transition-all focus:shadow-md">
                      </div>
                      <div class="flex items-center py-2">
                        <input v-model="configStore.maintenanceMode" id="maintenance" type="checkbox" class="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded">
@@ -445,10 +428,10 @@ const stats = computed(() => [
                </div>
 
                <!-- Payment Methods -->
-               <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+               <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 animate-slide-up" style="animation-delay: 200ms;">
                   <h3 class="font-bold text-lg mb-4 text-slate-800">Payment Methods</h3>
                   <div class="space-y-3">
-                    <div v-for="method in configStore.paymentMethods" :key="method.id" class="flex items-center justify-between p-3 border border-slate-100 rounded-lg">
+                    <div v-for="method in configStore.paymentMethods" :key="method.id" class="flex items-center justify-between p-3 border border-slate-100 rounded-lg hover:bg-slate-50 transition-colors">
                        <div class="flex items-center">
                           <input 
                             type="checkbox" 
@@ -458,7 +441,7 @@ const stats = computed(() => [
                           >
                           <span class="ml-3 text-sm font-medium text-slate-700">{{ method.name }}</span>
                        </div>
-                       <span :class="method.enabled ? 'text-green-600 bg-green-50' : 'text-slate-400 bg-slate-50'" class="text-xs px-2 py-1 rounded font-bold">
+                       <span :class="method.enabled ? 'text-green-600 bg-green-50' : 'text-slate-400 bg-slate-50'" class="text-xs px-2 py-1 rounded font-bold transition-colors">
                          {{ method.enabled ? 'Active' : 'Disabled' }}
                        </span>
                     </div>
@@ -466,10 +449,10 @@ const stats = computed(() => [
                </div>
 
                <!-- Shipping Methods -->
-               <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2">
+               <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2 animate-slide-up" style="animation-delay: 300ms;">
                   <h3 class="font-bold text-lg mb-4 text-slate-800">Shipping Methods</h3>
                   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div v-for="method in configStore.shippingMethods" :key="method.id" class="p-4 border border-slate-200 rounded-xl relative overflow-hidden" :class="{'bg-slate-50 opacity-75': !method.enabled}">
+                    <div v-for="method in configStore.shippingMethods" :key="method.id" class="p-4 border border-slate-200 rounded-xl relative overflow-hidden transition-all hover:shadow-md" :class="{'bg-slate-50 opacity-75': !method.enabled}">
                        <div class="flex justify-between items-start mb-2">
                           <h4 class="font-bold text-slate-800">{{ method.name }}</h4>
                           <input 
@@ -494,8 +477,8 @@ const stats = computed(() => [
                </div>
              </div>
              
-             <div class="flex justify-end pt-4">
-                <button @click="saveSettings" class="bg-brand-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-brand-700 shadow-lg shadow-brand-500/30 transition-all">Save All Changes</button>
+             <div class="flex justify-end pt-4 animate-slide-up" style="animation-delay: 400ms;">
+                <button @click="saveSettings" class="bg-brand-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-brand-700 shadow-lg shadow-brand-500/30 transition-all hover:-translate-y-1">Save All Changes</button>
              </div>
           </div>
 
@@ -504,38 +487,38 @@ const stats = computed(() => [
     </div>
 
     <!-- Add Product Modal -->
-    <div v-if="isProductModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
+    <div v-if="isProductModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 animate-scale-in">
          <h3 class="text-xl font-bold text-slate-800 mb-4">{{ isEditing ? 'Edit Product' : 'Add New Product' }}</h3>
          <div class="space-y-4">
             <div>
                <label class="block text-sm font-medium text-slate-700 mb-1">Product Name</label>
-               <input v-model="newProduct.name" type="text" class="w-full border px-3 py-2 rounded-lg border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none">
+               <input v-model="newProduct.name" type="text" class="w-full border px-3 py-2 rounded-lg border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
                  <label class="block text-sm font-medium text-slate-700 mb-1">Price (Rp)</label>
-                 <input v-model="newProduct.price" type="number" class="w-full border px-3 py-2 rounded-lg border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none">
+                 <input v-model="newProduct.price" type="number" class="w-full border px-3 py-2 rounded-lg border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
               </div>
               <div>
                  <label class="block text-sm font-medium text-slate-700 mb-1">Category</label>
-                 <select v-model="newProduct.category" class="w-full border px-3 py-2 rounded-lg border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none">
+                 <select v-model="newProduct.category" class="w-full border px-3 py-2 rounded-lg border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
                     <option v-for="cat in productStore.categories.filter(c => c !== 'All')" :key="cat" :value="cat">{{ cat }}</option>
                  </select>
               </div>
             </div>
             <div>
                <label class="block text-sm font-medium text-slate-700 mb-1">Description</label>
-               <textarea v-model="newProduct.description" rows="3" class="w-full border px-3 py-2 rounded-lg border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none"></textarea>
+               <textarea v-model="newProduct.description" rows="3" class="w-full border px-3 py-2 rounded-lg border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none transition-all"></textarea>
             </div>
             <div>
                <label class="block text-sm font-medium text-slate-700 mb-1">Image URL</label>
-               <input v-model="newProduct.image" type="text" class="w-full border px-3 py-2 rounded-lg border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none">
+               <input v-model="newProduct.image" type="text" class="w-full border px-3 py-2 rounded-lg border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
             </div>
          </div>
          <div class="flex justify-end space-x-3 mt-6">
-            <button @click="isProductModalOpen = false" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">Cancel</button>
-            <button @click="saveProduct" class="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700">Save Product</button>
+            <button @click="isProductModalOpen = false" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
+            <button @click="saveProduct" class="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 shadow-md transition-all hover:-translate-y-0.5">Save Product</button>
          </div>
       </div>
     </div>
