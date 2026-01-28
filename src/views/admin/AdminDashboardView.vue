@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useProductStore } from '@/stores/products'
@@ -28,6 +28,35 @@ const customers = ref([
   { id: 3, name: 'Rudi Hartono', email: 'rudi@example.com', role: 'User', joined: '2023-03-10' },
   { id: 4, name: 'Dewi Lestari', email: 'dewi@example.com', role: 'User', joined: '2023-04-05' },
 ])
+
+const orders = ref([])
+
+onMounted(() => {
+  const savedOrders = JSON.parse(localStorage.getItem('orders') || '[]')
+  orders.value = savedOrders.reverse()
+})
+
+const updateOrderStatus = (orderId, newStatus) => {
+  const orderIndex = orders.value.findIndex(o => o.id === orderId)
+  if (orderIndex !== -1) {
+    orders.value[orderIndex].status = newStatus
+    // Update LocalStorage
+    // We need to reverse back or find in original array if we want persistence properly across sessions if using just one source
+    // For simplicity, reading all, updating, and saving back.
+    const allOrders = JSON.parse(localStorage.getItem('orders') || '[]')
+    const realIndex = allOrders.findIndex(o => o.id === orderId)
+    if (realIndex !== -1) {
+      allOrders[realIndex].status = newStatus
+      localStorage.setItem('orders', JSON.stringify(allOrders))
+    }
+  }
+}
+
+const getStatusColor = (status) => {
+  if (status === 'Dikemas') return 'bg-orange-100 text-orange-700 border-orange-200'
+  if (status === 'Dikirim') return 'bg-blue-100 text-blue-700 border-blue-200'
+  return 'bg-green-100 text-green-700 border-green-200'
+}
 
 // --- Product Management ---
 const isProductModalOpen = ref(false)
@@ -86,13 +115,13 @@ const saveSettings = () => {
   alert('Settings saved successfully!')
 }
 
-// Stats (Static for now)
-const stats = [
-  { title: 'Total Revenue', value: 'Rp 15.400.000', change: '+12.5%', isPositive: true },
-  { title: 'Total Orders', value: '1,245', change: '+5.2%', isPositive: true },
-  { title: 'Active Products', value: computed(() => productStore.products.length), change: '+2', isPositive: true },
-  { title: 'Total Customers', value: computed(() => customers.value.length), change: '+4', isPositive: true },
-]
+// Stats (Dynamic)
+const stats = computed(() => [
+  { title: 'Total Revenue', value: 'Rp ' + orders.value.reduce((acc, curr) => acc + curr.total, 0).toLocaleString('id-ID'), change: '+12.5%', isPositive: true },
+  { title: 'Total Orders', value: orders.value.length, change: '+5.2%', isPositive: true },
+  { title: 'Active Products', value: productStore.products.length, change: `+${productStore.products.length - 7}`, isPositive: true },
+  { title: 'Total Customers', value: customers.value.length, change: `+${customers.value.length - 4}`, isPositive: true },
+])
 </script>
 
 <template>
@@ -112,8 +141,15 @@ const stats = [
           <LayoutDashboard class="w-5 h-5 flex-shrink-0" />
           <span class="ml-3 font-medium truncate" v-if="isSidebarOpen">Dashboard</span>
         </button>
-        <button @click="currentView = 'products'" :class="currentView === 'products' ? 'bg-brand-600 shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:text-white hover:bg-slate-800'" class="w-full flex items-center px-4 py-3 rounded-xl transition-colors">
+        <button @click="currentView = 'orders'" :class="currentView === 'orders' ? 'bg-brand-600 shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:text-white hover:bg-slate-800'" class="w-full flex items-center px-4 py-3 rounded-xl transition-colors">
           <ShoppingBag class="w-5 h-5 flex-shrink-0" />
+          <span class="ml-3 font-medium truncate" v-if="isSidebarOpen">Orders</span>
+        </button>
+        <button @click="currentView = 'products'" :class="currentView === 'products' ? 'bg-brand-600 shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:text-white hover:bg-slate-800'" class="w-full flex items-center px-4 py-3 rounded-xl transition-colors">
+          <div class="relative">
+             <ShoppingBag class="w-5 h-5 flex-shrink-0" />
+             <div class="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2"></div>
+          </div>
           <span class="ml-3 font-medium truncate" v-if="isSidebarOpen">Products</span>
         </button>
         <button @click="currentView = 'customers'" :class="currentView === 'customers' ? 'bg-brand-600 shadow-lg shadow-brand-900/50' : 'text-slate-400 hover:text-white hover:bg-slate-800'" class="w-full flex items-center px-4 py-3 rounded-xl transition-colors">
@@ -160,6 +196,36 @@ const stats = [
           <!-- DASHBOARD VIEW -->
           <div v-if="currentView === 'dashboard'" class="space-y-6">
             <h2 class="text-2xl font-bold text-slate-800">Dashboard Overview</h2>
+            <!-- Orders Summary -->
+             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center">
+                   <div class="p-4 rounded-full bg-yellow-100 text-yellow-600 mr-4">
+                      <ShoppingBag class="w-8 h-8"/>
+                   </div>
+                   <div>
+                      <p class="text-sm text-slate-500">Need to Ship</p>
+                      <p class="text-2xl font-bold text-slate-800">{{ orders.filter(o => o.status === 'Dikemas').length }}</p>
+                   </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center">
+                   <div class="p-4 rounded-full bg-blue-100 text-blue-600 mr-4">
+                      <Users class="w-8 h-8"/>
+                   </div>
+                   <div>
+                      <p class="text-sm text-slate-500">Being Shipped</p>
+                      <p class="text-2xl font-bold text-slate-800">{{ orders.filter(o => o.status === 'Dikirim').length }}</p>
+                   </div>
+                </div>
+                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center">
+                   <div class="p-4 rounded-full bg-green-100 text-green-600 mr-4">
+                      <ShoppingBag class="w-8 h-8"/>
+                   </div>
+                   <div>
+                      <p class="text-sm text-slate-500">Completed Revenue</p>
+                      <p class="text-2xl font-bold text-slate-800">Rp {{ orders.filter(o => o.status === 'Selesai').reduce((acc, curr) => acc + curr.total, 0).toLocaleString('id-ID') }}</p>
+                   </div>
+                </div>
+             </div>
             <!-- Stats Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div v-for="stat in stats" :key="stat.title" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
@@ -178,9 +244,111 @@ const stats = [
               </div>
             </div>
             
-             <!-- Simplification: Just keeping the prompt satisfied by focusing on new requirements -->
-             <div class="bg-white p-10 rounded-2xl border border-dashed border-slate-300 text-center text-slate-400">
-                 <p>Chart or Activity Feed Placeholder</p>
+             <!-- Recent Orders Table -->
+             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                   <h3 class="font-bold text-slate-800">Recent Orders</h3>
+                   <button @click="currentView = 'orders'" class="text-sm text-brand-600 hover:underline">View All</button>
+                </div>
+                <table class="w-full text-left">
+                  <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
+                    <tr>
+                      <th class="px-6 py-4">Order ID</th>
+                      <th class="px-6 py-4">Customer</th>
+                      <th class="px-6 py-4">Total</th>
+                      <th class="px-6 py-4">Status</th>
+                      <th class="px-6 py-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    <tr v-for="order in orders.slice(0, 5)" :key="order.id" class="hover:bg-slate-50">
+                      <td class="px-6 py-4 font-mono text-slate-500 text-xs">{{ order.id }}</td>
+                      <td class="px-6 py-4 font-medium text-slate-900">
+                         {{ order.address ? order.address.substring(0, 20) + '...' : 'Customer' }}
+                         <div class="text-xs text-slate-400 font-normal">Via {{ order.shippingMethod?.name || 'Shipping' }}</div>
+                      </td>
+                      <td class="px-6 py-4 text-slate-700 font-bold">Rp {{ order.total.toLocaleString('id-ID') }}</td>
+                      <td class="px-6 py-4">
+                        <span :class="getStatusColor(order.status)" class="px-2 py-1 rounded text-xs font-bold border">
+                          {{ order.status }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 text-right space-x-2">
+                        <button 
+                           v-if="order.status === 'Dikemas'" 
+                           @click="updateOrderStatus(order.id, 'Dikirim')"
+                           class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-200"
+                        >
+                           Ship Order
+                        </button>
+                        <button 
+                           v-if="order.status === 'Dikirim'" 
+                           @click="updateOrderStatus(order.id, 'Selesai')" 
+                           class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-xs font-bold hover:bg-green-200"
+                        >
+                           Complete
+                        </button>
+                         <span v-if="order.status === 'Selesai'" class="text-slate-400 text-xs italic">Completed</span>
+                      </td>
+                    </tr>
+                  </tbody>
+               </table>
+               <div v-if="orders.length === 0" class="p-10 text-center text-slate-400">
+                  No orders found.
+               </div>
+             </div>
+          </div>
+
+          <!-- ORDERS VIEW (New) -->
+          <div v-else-if="currentView === 'orders'" class="space-y-6">
+             <h2 class="text-2xl font-bold text-slate-800">Order Management</h2>
+             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+               <table class="w-full text-left">
+                  <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
+                    <tr>
+                      <th class="px-6 py-4">Order ID</th>
+                      <th class="px-6 py-4">Customer</th>
+                      <th class="px-6 py-4">Total</th>
+                      <th class="px-6 py-4">Status</th>
+                      <th class="px-6 py-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    <tr v-for="order in orders" :key="order.id" class="hover:bg-slate-50">
+                      <td class="px-6 py-4 font-mono text-slate-500 text-xs">{{ order.id }}</td>
+                      <td class="px-6 py-4 font-medium text-slate-900">
+                         {{ order.address ? order.address.substring(0, 20) + '...' : 'Customer' }}
+                         <div class="text-xs text-slate-400 font-normal">Via {{ order.shippingMethod?.name || 'Shipping' }}</div>
+                      </td>
+                      <td class="px-6 py-4 text-slate-700 font-bold">Rp {{ order.total.toLocaleString('id-ID') }}</td>
+                      <td class="px-6 py-4">
+                        <span :class="getStatusColor(order.status)" class="px-2 py-1 rounded text-xs font-bold border">
+                          {{ order.status }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 text-right space-x-2">
+                        <button 
+                           v-if="order.status === 'Dikemas'" 
+                           @click="updateOrderStatus(order.id, 'Dikirim')"
+                           class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-200"
+                        >
+                           Ship Order
+                        </button>
+                        <button 
+                           v-if="order.status === 'Dikirim'" 
+                           @click="updateOrderStatus(order.id, 'Selesai')" 
+                           class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-xs font-bold hover:bg-green-200"
+                        >
+                           Complete
+                        </button>
+                         <span v-if="order.status === 'Selesai'" class="text-slate-400 text-xs italic">Completed</span>
+                      </td>
+                    </tr>
+                  </tbody>
+               </table>
+               <div v-if="orders.length === 0" class="p-10 text-center text-slate-400">
+                  No orders found.
+               </div>
              </div>
           </div>
 
