@@ -73,5 +73,14 @@ export const useProductStore = defineStore('products', () => {
     })
   })
 
-  return { products, categories, searchQuery, selectedCategory, filteredProducts }
+  function addProduct(product) {
+    const newId = products.value.length > 0 ? Math.max(...products.value.map(p => p.id)) + 1 : 1
+    products.value.push({ ...product, id: newId })
+  }
+
+  function removeProduct(id) {
+    products.value = products.value.filter(p => p.id !== id)
+  }
+
+  return { products, categories, searchQuery, selectedCategory, filteredProducts, addProduct, removeProduct }
 })
