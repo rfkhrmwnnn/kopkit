@@ -81,6 +81,12 @@ export const useProductStore = defineStore('products', () => {
   function removeProduct(id) {
     products.value = products.value.filter(p => p.id !== id)
   }
+  function updateProduct(updatedProduct) {
+    const index = products.value.findIndex(p => p.id === updatedProduct.id)
+    if (index !== -1) {
+      products.value[index] = { ...updatedProduct }
+    }
+  }
 
-  return { products, categories, searchQuery, selectedCategory, filteredProducts, addProduct, removeProduct }
+  return { products, categories, searchQuery, selectedCategory, filteredProducts, addProduct, removeProduct, updateProduct }
 })

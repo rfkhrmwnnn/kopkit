@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import NavBar from '@/components/NavBar.vue'
 import { useAuthStore } from '@/stores/auth'
-import { Package, Truck, CheckCircle, MapPin, LogOut } from 'lucide-vue-next'
+import { Package, Truck, CheckCircle, MapPin, LogOut, Home } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -70,9 +70,14 @@ const getStatusColor = (status) => {
             <p class="text-brand-200 text-sm">{{ authStore.user?.role === 'admin' ? 'Administrator' : 'Premium Member' }}</p>
           </div>
         </div>
-        <button @click="handleLogout" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg text-white transition-colors">
-          <LogOut class="w-5 h-5" />
-        </button>
+        <div class="flex items-center space-x-2">
+            <router-link to="/home" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg text-white transition-colors" title="Back to Dashboard">
+              <Home class="w-5 h-5" />
+            </router-link>
+            <button @click="handleLogout" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg text-white transition-colors" title="Logout">
+              <LogOut class="w-5 h-5" />
+            </button>
+        </div>
       </div>
     </div>
 
@@ -143,8 +148,11 @@ const getStatusColor = (status) => {
       </div>
     </main>
     
-    <div class="hidden md:block fixed bottom-10 right-10">
-      <!-- Back to Home if needed or just use navbar -->
+    <div class="hidden md:block fixed bottom-10 right-10 z-50">
+       <router-link to="/home" class="flex items-center space-x-2 bg-brand-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-brand-700 transition-all font-bold hover:-translate-y-1">
+         <Home class="w-5 h-5" />
+         <span>Back to Dashboard</span>
+       </router-link>
     </div>
 
     <div class="md:hidden">

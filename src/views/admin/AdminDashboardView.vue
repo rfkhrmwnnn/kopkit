@@ -39,7 +39,10 @@ const newProduct = ref({
   image: 'https://placehold.co/400x400/gray/white?text=Product'
 })
 
+const isEditing = ref(false)
+
 const openAddProductModal = () => {
+  isEditing.value = false
   newProduct.value = {
     name: '',
     price: 0,
@@ -50,12 +53,23 @@ const openAddProductModal = () => {
   isProductModalOpen.value = true
 }
 
+const openEditProductModal = (product) => {
+  isEditing.value = true
+  newProduct.value = { ...product }
+  isProductModalOpen.value = true
+}
+
 const saveProduct = () => {
   if (!newProduct.value.name || newProduct.value.price <= 0) {
     alert('Please fill in valid name and price')
     return
   }
-  productStore.addProduct(newProduct.value)
+  
+  if (isEditing.value) {
+    productStore.updateProduct(newProduct.value)
+  } else {
+    productStore.addProduct(newProduct.value)
+  }
   isProductModalOpen.value = false
 }
 
@@ -197,7 +211,7 @@ const stats = [
                       </td>
                       <td class="px-6 py-4 text-slate-700">Rp {{ product.price.toLocaleString('id-ID') }}</td>
                       <td class="px-6 py-4 text-right space-x-2">
-                        <button class="text-blue-500 hover:text-blue-700"><Edit class="w-4 h-4" /></button>
+                        <button @click="openEditProductModal(product)" class="text-blue-500 hover:text-blue-700"><Edit class="w-4 h-4" /></button>
                         <button @click="deleteProduct(product.id)" class="text-red-500 hover:text-red-700"><Trash2 class="w-4 h-4" /></button>
                       </td>
                     </tr>
@@ -324,7 +338,7 @@ const stats = [
     <!-- Add Product Modal -->
     <div v-if="isProductModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
-         <h3 class="text-xl font-bold text-slate-800 mb-4">Add New Product</h3>
+         <h3 class="text-xl font-bold text-slate-800 mb-4">{{ isEditing ? 'Edit Product' : 'Add New Product' }}</h3>
          <div class="space-y-4">
             <div>
                <label class="block text-sm font-medium text-slate-700 mb-1">Product Name</label>
